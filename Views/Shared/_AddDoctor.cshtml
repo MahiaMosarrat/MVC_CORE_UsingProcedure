@@ -1,0 +1,27 @@
+﻿@model List<Doctor>
+<table id="ExTable" class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Doctor Name</th>
+            <th>Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            <tr>
+                <td>
+                    <input type="text" value="@Model[i].DoctorName" class="form-control" name="Doctors[@i].DoctorName" />
+                </td>
+                <td>
+                    <input type="text" value="@Model[i].TimeSlot" class="form-control" name="Doctors[@i].TimeSlot" />
+                </td>
+                <td>
+                    <button onclick="deleteRow(this)" type="button" class="btn btn-danger">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<input type="hidden" id="HIndex" value="@Model.Count"/>
+

@@ -1,0 +1,126 @@
+﻿@model IEnumerable<Appointment>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Appointment List</h1>
+
+<p>
+    <button id="btnCreate" class="btn btn-primary float-end mb-2" >Book Appointment</button>
+</p>
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>
+               Image
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PatientName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Age)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Gender)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MobileNo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FirstVisit)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AppointmentDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ConsultationFee)
+            </th>
+           
+            <th>
+                @Html.DisplayNameFor(model => model.Specialist.CategoryName)
+            </th>
+            <th>Schedule </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="student-list-body">
+@foreach (var item in Model) {
+            <tr data-appointment-id="@item.AppointmentId">
+            <td>
+                    <img src="~/images/@item.ImageUrl" width="60" height="60" class="rounded" />
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PatientName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Age)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Gender)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MobileNo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FirstVisit)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AppointmentDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ConsultationFee)
+            </td>
+          
+            <td>
+                @Html.DisplayFor(modelItem => item.Specialist.CategoryName)
+            </td>
+            <td>
+                <ul>
+                    @foreach (var d in item.Doctors)
+                        {
+                            <li>@d.DoctorName : @d.TimeSlot</li>
+                        }
+                </ul>
+            </td>
+            <td>
+                    <a class="btn btn-info btn-sm edit-btn" href="@Url.Action("EditPartial", "Appointments", new {id=item.AppointmentId})">Edit</a> |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.AppointmentId }, new { @class = "btn btn-danger btn-sm" })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+<div id="modalContainer">
+</div>
+@section scripts {
+    <script>
+        $(document).ready(function () {
+
+            $("#btnCreate").click(function () {
+                $.get('@Url.Action("CreatePartial", "Appointments")', function (data) {
+                    $("#modalContainer").html('<div class="modal fade show" style="display:block;" aria-modal="true" role="dialog"><div class="modal-dialog modal-lg"><div class="modal-content">' + data + '</div></div></div><div class="modal-backdrop fade show"></div>');
+                    attachModalEventListeners();
+                });
+            });
+
+             $('#student-list-body').on('click', '.edit-btn', function (e) {
+                e.preventDefault();
+                var editUrl = $(this).attr('href');
+
+                $.get(editUrl, function (data) {
+                    $("#modalContainer").html('<div class="modal fade show" style="display:block;" aria-modal="true" role="dialog"><div class="modal-dialog modal-lg"><div class="modal-content">' + data + '</div></div></div><div class="modal-backdrop fade show"></div>');
+                    attachModalEventListeners("Edit", $(e.currentTarget).closest('tr').data('appointment-id'));
+                });
+            });
+
+            function attachModalEventListeners(action = "Create", appointmentId = null) {
+                $(document).off("click", ".modal-backdrop, .modal .btn-secondary").on("click", ".modal-backdrop, .modal .btn-secondary", function () {
+                    $("#modalContainer").empty();
+                });
+
+
+            }
+        });
+    </script>
+}

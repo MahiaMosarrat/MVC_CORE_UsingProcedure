@@ -1,0 +1,120 @@
+﻿@model AppointmentViewModel
+<div class="modal-header">
+    <h5 class="modal-title">Add New Appointment</h5>
+</div>
+<div class="modal-body">
+    <form asp-action="CreateAppointment" asp-controller="Appointments" method="post" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-md-7">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="PatientName" class="control-label"></label>
+                    <input asp-for="PatientName" class="form-control" />
+                    <span asp-validation-for="PatientName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Age" class="control-label"></label>
+                    <input asp-for="Age" class="form-control" />
+                    <span asp-validation-for="Age" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Gender" class="control-label"></label>
+                    <input asp-for="Gender" class="form-control" />
+                    <span asp-validation-for="Gender" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="MobileNo" class="control-label"></label>
+                    <input asp-for="MobileNo" class="form-control" />
+                    <span asp-validation-for="MobileNo" class="text-danger"></span>
+                </div>
+                <div class="form-group form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="FirstVisit" />
+                        @Html.DisplayNameFor(model => model.FirstVisit)
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label asp-for="AppointmentDate" class="control-label"></label>
+                    <input asp-for="AppointmentDate" class="form-control" />
+                    <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ConsultationFee" class="control-label"></label>
+                    <input asp-for="ConsultationFee" class="form-control" />
+                    <span asp-validation-for="ConsultationFee" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <img id="imageFile" src="~/images/noimage.png" alt="image" width="100" /><br />
+                    @Html.LabelFor(model => model.ProfileFile, htmlAttributes: new { @class = "control-label col-md-3" })
+                    <input onchange="readUrl(this)" type="file" name="ProfileFile" id="ProfileFile" class="invisible" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="SpecialistId" class="control-label"></label>
+                    <select asp-for="SpecialistId" class="form-control" asp-items="@(new SelectList(Model.Specialists, "SpecialistId", "CategoryName"))">
+                        <option value="">Select Specialist</option>
+                    </select>
+                    <span asp-validation-for="SpecialistId" class="text-danger"></span>
+                </div>
+               
+            </div>
+            <div class="col-md-5">
+                <h4> Appointment Schedule Details</h4>
+                <button onclick="AddSchedule()" type="button" class="btn btn-warning mb-2">Add Schedule</button>
+                @Html.Partial("_AddDoctor", Model.Doctors)
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-success">Book Appointment</button>
+        </div>
+    </form>
+</div>
+<script src="~/Scripts/jquery-3.7.1.min.js"></script>
+<script>
+    function readUrl(i) {
+        if (i.files && i.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $("#imageFile").attr('src', e.target.result)
+            }
+            reader.readAsDataURL(i.files[0]);
+        }
+    }
+    function deleteRow(btn) {
+        $(btn).closest('tr').remove();
+         updateIndex();
+    }
+    function AddSchedule() {
+        var lastIndex = parseInt($('#HIndex').val());
+            var newRow = `
+    <tr>
+        <td>
+            <input type="text" value="" class="form-control" name="Doctors[${lastIndex}].DoctorName" />
+        </td>
+        <td>
+            <input type="text" value="" class="form-control" name="Doctors[${lastIndex}].TimeSlot" />
+        </td>
+        <td>
+            <button onclick="deleteRow(this)" type="button" class="btn btn-danger">Delete</button>
+        </td>
+    </tr>
+    `;
+        $("#ExTable tbody").append(newRow);
+        $('#HIndex').val(lastIndex + 1);
+        updateIndex();
+    }
+    function updateIndex() {
+        $("#ExTable tbody tr").each(function (index) {
+            $(this).find("input[name^='Doctors']").each(function () {
+                var name = $(this).attr("name");
+                name = name.replace(/Doctors\[\d+\]/, "Doctors[" + index + "]");
+                $(this).attr("name", name)
+            })
+        })
+    }
+</script>
+
+
+
