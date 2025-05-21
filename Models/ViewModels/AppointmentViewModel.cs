@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PatientManagementCore.Models.ViewModels
 {
@@ -13,6 +14,7 @@ namespace PatientManagementCore.Models.ViewModels
         [DataType(DataType.Date)]
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-dd}")]
         public DateTime AppointmentDate { get; set; }
+        [Column(TypeName = "decimal(18,4)")]
         public decimal ConsultationFee { get; set; }
         public string? ImageUrl { get; set; }
         public int SpecialistId { get; set; }

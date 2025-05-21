@@ -4,7 +4,13 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Appointment List</h1>
+<div>
+    @await Component.InvokeAsync("HeadCount")
+    <hr /> 
+    @await Component.InvokeAsync("AggregateInfo")
+</div>
+
+<h3>Appointment List</h3>
 
 <p>
     <button id="btnCreate" class="btn btn-primary float-end mb-2" >Book Appointment</button>

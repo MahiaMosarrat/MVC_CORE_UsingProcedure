@@ -1,0 +1,21 @@
+﻿@model IEnumerable<CategoryHeadCount>
+
+<link href="~/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Category Name</th>
+            <th>Appointment Count</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.CategoryName</td>
+                <td>@item.Count</td>
+            </tr>
+        }
+    </tbody>
+</table>
+

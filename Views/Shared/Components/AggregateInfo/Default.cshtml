@@ -1,0 +1,47 @@
+﻿@model AggregateViewModel
+
+<h3>Aggregate Function</h3>
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Min Value</th>
+            <th>Max Value</th>
+            <th>Sum Value</th>
+            <th>Average Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>@Model.MinValue</td>
+            <td>@Model.MaxValue</td>
+            <td>@Model.SumValue</td>
+            <td>@Model.AvgValue</td>
+        </tr>
+    </tbody>
+</table>
+<h3>Group By Result</h3>
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Category Name</th>
+            <th>Min Value</th>
+            <th>Max Value</th>
+            <th>Sum Value</th>
+            <th>Average Value</th>
+            <th>Count</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.GroupByResult)
+        {
+            <tr>
+                <td>@item.CategoryName</td>
+                <td>@item.MinValue</td>
+                <td>@item.MaxValue</td>
+                <td>@item.SumValue</td>
+                <td>@item.AvgValue</td>
+                <td>@item.Count</td>
+            </tr>
+        }
+    </tbody>
+</table>
