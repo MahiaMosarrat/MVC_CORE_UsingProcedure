@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Build.Framework;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using PatientManagementCore.Migrations;
@@ -149,51 +150,68 @@ namespace PatientManagementCore.Controllers
         }
 
         [HttpPost]
-        public ActionResult EditAppointment(AppointmentViewModel vobj, string OldImageUrl)
+        public async Task<ActionResult> EditAppointment(AppointmentViewModel vobj, string OldImageUrl)
         {
             if (!ModelState.IsValid)
             {
                 vobj.Specialists = db.Specialists.ToList();
                 return View();
             }
-            Appointment obj = db.Appointments.Find(vobj.AppointmentId);
-            if (obj != null)
+            Appointment appointment = db.Appointments.Find(vobj.AppointmentId);
+            if (appointment != null)
             {
-                obj.PatientName = vobj.PatientName;
-                obj.Age = vobj.Age;
-                obj.Gender = vobj.Gender;
-                obj.MobileNo = vobj.MobileNo;
-                obj.FirstVisit = vobj.FirstVisit;
-                obj.AppointmentDate = vobj.AppointmentDate;
-                obj.ConsultationFee = vobj.ConsultationFee;
-                obj.SpecialistId = vobj.SpecialistId;
+                appointment.PatientName = vobj.PatientName;
+                appointment.Age = vobj.Age;
+                appointment.Gender = vobj.Gender;
+                appointment.MobileNo = vobj.MobileNo;
+                appointment.FirstVisit = vobj.FirstVisit;
+                appointment.AppointmentDate = vobj.AppointmentDate;
+                appointment.ConsultationFee = vobj.ConsultationFee;
+                appointment.SpecialistId = vobj.SpecialistId;
                 if (vobj.ProfileFile != null)
                 {
                     string fileName = GetFileName(vobj.ProfileFile);
-                    obj.ImageUrl = fileName;
+                    appointment.ImageUrl = fileName;
                 }
                 else
                 {
-                    obj.ImageUrl = OldImageUrl;
+                    appointment.ImageUrl = OldImageUrl;
                 }
                 var doctors = db.Doctors.Where(d => d.AppointmentId == vobj.AppointmentId).ToList();
-                if (doctors != null)
+                DataTable doctorTable = new DataTable();
+                doctorTable.Columns.Add("DoctorName", typeof(string));
+                doctorTable.Columns.Add("TimeSlot", typeof(string));
+                if (vobj.Doctors != null && vobj.Doctors.Any())
                 {
-                    db.Doctors.RemoveRange(doctors);
-                }
-                if (vobj.Doctors != null)
-                {
-                    foreach (var d in vobj.Doctors)
+                    foreach (var d in appointment.Doctors)
                     {
-                        d.AppointmentId = vobj.AppointmentId;
-                        d.DoctorName = d.DoctorName;
-                        d.TimeSlot = d.TimeSlot;
-                        db.Doctors.Add(d);
+                        doctorTable.Rows.Add(d.DoctorName, d.TimeSlot);
                     }
-                   
                 }
-                db.Entry(obj).State = EntityState.Modified;
-                db.SaveChanges();
+                var parameters = new[]
+                {
+                   new SqlParameter("@PatientName",appointment.PatientName),
+                   new SqlParameter("@Age",appointment.Age),
+                   new SqlParameter("@Gender",appointment.Gender),
+                   new SqlParameter("@MobileNo",appointment.MobileNo),
+                   new SqlParameter("@FirstVisit",appointment.FirstVisit),
+                   new SqlParameter("@AppointmentDate",appointment.AppointmentDate),
+                   new SqlParameter("@ConsultationFee",appointment.ConsultationFee),
+                   new SqlParameter("@SpecialistId",appointment.SpecialistId),
+                   new SqlParameter("@ImageUrl",appointment.ImageUrl?? (object)DBNull.Value),
+
+                   new SqlParameter
+                   {
+                       ParameterName="@Doctors",
+                       SqlDbType=SqlDbType.Structured,
+                       TypeName="dbo.EditParamDoctorType",
+                       Value=doctorTable
+                   },
+                    new SqlParameter("@AppointmentId",vobj.AppointmentId),
+                };
+
+                await db.Database.ExecuteSqlRawAsync("EXEC dbo.spUpdateAppointment @PatientName,@Age,@Gender,@MobileNo,@FirstVisit,@AppointmentDate,@ConsultationFee,@SpecialistId,@ImageUrl,@Doctors,@AppointmentId", parameters);
+
                 try
                 {
                     return RedirectToAction("Index");
